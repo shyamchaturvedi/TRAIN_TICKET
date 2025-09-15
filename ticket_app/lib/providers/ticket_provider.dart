@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/ticket_database.dart';
+import '../data/store_factory.dart';
 import '../models/ticket.dart';
 
 class TicketProvider extends ChangeNotifier {
@@ -16,7 +16,7 @@ class TicketProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final loaded = await TicketDatabase.instance.fetchAllTickets();
+      final loaded = await getStore().fetchAllTickets();
       _tickets
         ..clear()
         ..addAll(loaded);
@@ -27,14 +27,14 @@ class TicketProvider extends ChangeNotifier {
   }
 
   Future<void> addTicket(Ticket ticket) async {
-    final created = await TicketDatabase.instance.insertTicket(ticket);
+    final created = await getStore().insertTicket(ticket);
     _tickets.add(created);
     notifyListeners();
   }
 
   Future<void> updateTicket(Ticket ticket) async {
     if (ticket.id == null) return;
-    await TicketDatabase.instance.updateTicket(ticket);
+    await getStore().updateTicket(ticket);
     final index = _tickets.indexWhere((t) => t.id == ticket.id);
     if (index != -1) {
       _tickets[index] = ticket;
@@ -43,7 +43,7 @@ class TicketProvider extends ChangeNotifier {
   }
 
   Future<void> deleteTicket(int id) async {
-    await TicketDatabase.instance.deleteTicket(id);
+    await getStore().deleteTicket(id);
     _tickets.removeWhere((t) => t.id == id);
     notifyListeners();
   }
